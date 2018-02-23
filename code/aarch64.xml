@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE target SYSTEM "gdb-target.dtd">
+<target>
+  <architecture>aarch64</architecture>
+  <xi:include href="aarch64-core.xml"/>
+  <xi:include href="aarch64-fpu.xml"/>
+</target>
+
+<feature name="org.gnu.gdb.aarch64.core">
+  <reg name="x0" bitsize="64"/>
+</feature>
+
+<feature name="org.gnu.gdb.aarch64.fpu">
+  <union id="aarch64v">
+  </union>
+  <reg name="v0" bitsize="128"
+       type="aarch64v" regnum="34"/>
+</feature>

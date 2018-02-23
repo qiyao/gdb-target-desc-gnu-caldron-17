@@ -1,0 +1,10 @@
+#include "features/i386/amd64-linux.c"
+#include "features/i386/amd64-avx-linux.c"
+#include "features/i386/amd64-mpx-linux.c"
+#include "features/i386/amd64-avx-mpx-linux.c"
+#include "features/i386/amd64-avx-avx512-linux.c"
+#include "features/i386/amd64-avx-mpx-avx512-pku-linux.c"
+
+#include "features/i386/x32-linux.c"
+#include "features/i386/x32-avx-linux.c"
+#include "features/i386/x32-avx-avx512-linux.c"
