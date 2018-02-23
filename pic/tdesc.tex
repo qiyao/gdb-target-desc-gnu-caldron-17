@@ -1,0 +1,37 @@
+\begin{tikzpicture}[
+  auto, >=latex',
+  doc/.style={minimum height=4em, minimum width=3em, fill=white, draw=blue, double copy shadow={shadow xshift=4pt, 
+      shadow yshift=4pt, fill=white, draw}},
+]
+
+  \node (gdb-tdep)[draw, align=left, font=\tiny, color=red] {\texttt{\#include "features/foo.c"}\\\texttt{\#include "features/bar.c"}};
+  \node (gdb-features)[below=8mm of gdb-tdep, draw, align=left, doc] {\tiny features/*.c};
+  \draw[->,color=magenta,line width=0.3mm] (gdb-features) -- node[align=left] {\small *-tdep.c} (gdb-tdep);
+  \node (gdb) [below=1mm of gdb-features] {GDB};
+  \node (gdb1) [draw=black!50, fit={(gdb) (gdb-tdep) (gdb-features) ($(gdb-features.south east)+(10pt,0pt)$)}] {};
+
+  % GDBserver
+  \node (gdbserver-builtin)[right=4.5cm of gdb1, align=left, draw=teal, dashed, font=\tiny, text=red] {\texttt{xml-builtin-generated.c} \\ \texttt{char *const xml\_builtin[][2]}};
+
+  \node (gdbserver-process)[right=25mm of gdbserver-builtin, draw, align=left] {\tiny\texttt{process\_info.tdesc}};
+  \node (gdbserver-generated)[below=5mm of gdbserver-process, align=left, doc, draw=teal, dashed] {\tiny *-generated.c};
+  \node (gdbserver) [at=(gdbserver-builtin |- gdbserver-generated)] {GDBServer};
+  \draw[->,color=violet,line width=0.3mm] (gdbserver-process) -- node[above,sloped]{\tiny\texttt{target\_desc.xmltarget}} (gdbserver-builtin);
+
+  \node (gdbserver-regcache)[above=4mm of gdbserver-process,draw, align=left,color=brown] {\tiny\texttt{regcache.tdesc}};
+  \draw[->] (gdbserver-generated) -- (gdbserver-process);
+  \draw[->,color=brown,line width=0.3mm] (gdbserver-process) -- (gdbserver-regcache);
+  \node (gdbserver1) [draw=black!50, fit={(gdbserver) (gdbserver-regcache) (gdbserver-process) (gdbserver-builtin) (gdbserver-generated) ($(gdbserver-generated.south east)+(10pt,0pt)$)}] {};
+  \draw[->,color=violet,line width=0.3mm] (gdbserver-builtin) -- node[name=xml,align=left,sloped,font=\tiny] {\texttt{\textless feature name="org.gnu.gdb.*.core"\textgreater} \\ \texttt{\textless reg name="x0" bitsize="64"/\textgreater}} (gdb1);
+
+  \node[below=2.4cm of xml, doc,align=left,font=\tiny] (doc) {target descriptions \\ \texttt{i386-avx-mpx-linux.xml} \\ \texttt{i386-avx-mpx-avx512-pku-linux.xml}};
+  \node[left=35mm of doc, doc,align=left, anchor=east,font=\tiny] (features) {target features \\ \texttt{32bit-mpx.xml} \\ \texttt{32bit-avx.xml} };
+  \draw[->,color=red,line width=0.3mm] (features) -- node {\tiny\texttt{\textless xi:include href="*.xml"/\textgreater}} (doc);
+
+  \node[at=(gdbserver-generated |- doc), doc] (dat) {regformats/*.dat};
+
+  \draw[->] (doc) -- node[above] {\texttt{xsltproc}} (dat);
+  \draw[->] (dat) -- node {\texttt{regdat.sh}} (gdbserver-generated);
+  \draw[->,color=magenta,line width=0.3mm] (doc) -- node[below, align=left, anchor=north east] {\small\texttt{maint print c-tdesc *.xml}} (gdb-features);
+  \draw[->] (doc) -- node[above, align=left, sloped, font=\tiny] {\texttt{feature\_to\_c.sh} \\ \texttt{@srv\_xmlfiles}} (gdbserver-builtin);
+\end{tikzpicture}

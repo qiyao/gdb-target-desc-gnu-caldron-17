@@ -1,0 +1,60 @@
+\begin{tikzpicture}[
+  auto, >=latex',
+  doc/.style={minimum height=4em, minimum width=3em, fill=white, draw=blue, double copy shadow={shadow xshift=4pt, 
+      shadow yshift=4pt, fill=white, draw}},
+  database/.style={cylinder, cylinder uses custom fill, cylinder body fill=yellow,
+    cylinder end fill=yellow, shape border rotate=90, aspect=0.25,
+    line width=0.4mm, draw=green
+    }
+]
+
+  %\node (tdesc-collection) [database, left=4.5cm of gdbserver-builtin, font=\small, align=left] {Target descriptions\\collection};
+  \node (tdesc-collection) [database, font=\small, align=left] {Target descriptions\\collection};
+  \node (gdbarch) [above=1mm of tdesc-collection, draw=black!50, fit={($(tdesc-collection.north)+(0pt, 20pt)$) (tdesc-collection)}, label={[yshift=-20pt]gdbarch}]{};
+  \node (gdb) [above=1mm of gdbarch, draw=black!50, fit={($(gdbarch.north)+(0pt, 20pt)$) (gdbarch)}, label={[yshift=-20pt]GDB}]{};
+
+
+%($(gdb-features.south east)+(10pt,0pt)$)
+
+  % GDBserver
+  \node (gdbserver-gen-xml)[align=left, right=4.1cm of tdesc-collection,line width=0.4mm, draw=green, font=\small] {Generate XML contents \\from \texttt{target\_desc}};
+  \node (gdbserver-builtin)[above=5mm of gdbserver-gen-xml, align=left, draw=teal, dashed, font=\tiny, text=red] {\texttt{xml-builtin-generated.c} \\ \texttt{char *const xml\_builtin[][2]}};
+
+  \draw[->,color=violet,line width=0.3mm] (gdbserver-builtin) -- (gdbserver-gen-xml);
+
+
+  \node (gdbserver-process)[right=of gdbserver-gen-xml, draw, align=left] {\tiny\texttt{process\_info.tdesc}};
+
+  \draw[->,color=violet,line width=0.3mm] (gdbserver-process) -- (gdbserver-gen-xml);
+
+  \node (gdbserver-regcache)[above=4mm of gdbserver-process,draw, align=left,color=brown] {\tiny\texttt{regcache.tdesc}};
+  %\node (gdbserver) [at=(gdbserver-gen-xml |- gdbserver-regcache)] {GDBServer};
+
+  \draw[->,color=brown,line width=0.3mm] (gdbserver-process) -- (gdbserver-regcache);
+  \node (gdbserver1) [draw=black!50, fit={(gdbserver-regcache) (gdbserver-process) (gdbserver-gen-xml) (gdbserver-builtin) ($(gdbserver-builtin.north)+(0pt, 20pt)$)}, label={[yshift=-20pt]GDBServer}] {};
+
+
+
+  \draw[->,color=violet,line width=0.3mm] (gdbserver-gen-xml) -- node[name=xml,align=left, sloped, font=\tiny] {\texttt{\textless feature name="org.gnu.gdb.*.core"\textgreater} \\ \texttt{\textless reg name="x0" bitsize="64"/\textgreater}} (tdesc-collection);
+
+% \texttt{\textless feature name="org.gnu.gdb.*.core"\textgreater} \\ \texttt{\textless reg name="x0" bitsize="64"/\textgreater}
+
+  \node (shared-tdesc)[below=of xml, draw, align=left, doc, font=\small, line width=0.4mm, draw=green] {
+    \texttt{arch/i386.c} \\
+    \texttt{arch/amd64.c} \\
+    \texttt{arch/....c} \\
+  };
+
+  \draw[<->, line width=0.4mm, color=green] (shared-tdesc) -- (tdesc-collection);
+
+  \draw[->, line width=0.4mm, color=green] (shared-tdesc) -- (gdbserver1);
+  %\draw[->, line width=0.4mm, color=green] (shared-tdesc) -- (gdb1);
+
+  \node (gdb-features)[below=of shared-tdesc, draw, align=left, doc] {\small features/*.c};
+
+  \draw[->] (gdb-features) -- (shared-tdesc);
+
+  \node[right=50mm of gdb-features, doc,align=left, font=\small] (features) {target features \\ \texttt{32bit-mpx.xml} \\ \texttt{32bit-avx.xml} };
+
+  \draw[->,color=magenta,line width=0.3mm] (features) -- node[align=left, above] {\small\texttt{maint print c-tdesc *.xml}} (gdb-features);
+\end{tikzpicture}
